@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<body>
+<style>
+.bar_div{
+  -webkit-transition: width .5s, height .5s;
+  transition: width .5s, height .5s;
+  position: relative;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+.grid-container {
+  display: grid;
+  grid-template-columns: auto auto auto auto;
+  background-color: rgb(179, 212, 240);
+  padding: 5px;
+  width: 1030px;
+}
+.grid-item {
+  background-color: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(0, 0, 0, 0.8);
+  padding: 2px;
+  font-size: 20px;
+  text-align: center;
+  width: 250px;
+  position: relative;
+  /* left: 50%; */
+  /* top: 50%; */
+  /* transform: translate(-50%, -50%); */
+}
+</style>
+
+<script type="text/javascript" src="js/custom_div.js"></script>
+<script type="text/javascript" src="js/chart.js"></script>
+<script type="text/javascript" src="js/jquery-3.2.1.min.js"></script>
+<script type="text/javascript" src="js/main.js"></script>
+<script type="text/javascript" src="js/run_system.js"></script>
+
+<!-- metronome setup -->
+<script type="text/javascript" src="metronome_js/audioManager.js"></script>
+<script type="text/javascript" src="metronome_js/audioSources.js"></script>
+<script type="text/javascript" src="metronome_js/metronome.js"></script>
+<script type="text/javascript" src="metronome_js/metronome_main.js"></script>
+
+<script>
+  var num_of_bar_quadruples = 1;
+  var allBars = [];
+  var timeSig = '4/4'; // to be changed by dropdown menu
+  var chart_object = [];
+  // current to be highlighted - from chart_object
+  var beat_highlight = 0;
+  var num_bars = 0;
+  var beats_per_bar = 0;
+  // play status of the program
+  var play_status = false;
+  // information to the system
+  // number of columns as seed to the system
+  var time_step = 16;
+  var current_beat_info = false;
+  var tmp_beat = [];
+  var beat_info_array = new Array(time_step).fill(0);
+  var tmp_beat_info = false;
+  var current_chord_info = [];
+  var chord_info_matrix = new Array(time_step).fill( new Array( 18 ).fill( 0 ) );
+  // initialize human and bot input
+  // TODO: Theatina, check if we need to fill with 0 or 128 (we need pauses)
+  var human_midi_array = new Array(time_step).fill(0);
+  var human_prediction_array = new Array(time_step).fill(0);
+  var bot_prediction_array = new Array(time_step).fill(0);
+  // from main
+  construct_controls_UI();
+  construct_bars_UI();
+  // var allClickFunctions = {};
+  $(document).ready(function(){
+    construct_bars_content();
+    chart_object = new ChartClass( allBars );
+  });
+</script>
+
+<script>
+  // var allBars = {};
+  // for(var i=0; i<16; i++){
+  //   allBars["id"+String(i)] = new MyDiv("grid-item_"+String(i), "id"+String(i));
+  // }
+</script>
+
+<script>
+  function main_zoom_out_all_except(id){
+    for (var i=0; i<allBars.length; i++){
+      if ( id != allBars[i].id ){
+        allBars[i].set_zoom_status(false);
+      }
+    }
+    // update chart object
+    chart_object = new ChartClass( allBars );
+  }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,9 @@
+in run_system.js
+- make_inputs_and_run_play
+	- initBuffersAndStates
+		- make_inputs_and_run_init
+			- update_beat_info: updates 0-1 in beat info
+			- update_chord_info: 
+			- update_human_prediction
+			- update_bot_prediction
+	- playNextEighth: (in main.js) for each number_of_eighths

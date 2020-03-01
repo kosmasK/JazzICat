@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+
+<html>
+
+	<head>
+		<meta charset=utf-8>
+		<title>IM^2 MIDI Interface</title>
+		<style>
+			body { 
+				margin: 0;  
+				width: 100%; 
+				height: 100%; 
+				text-align: center;
+				font-family: 'Noto Serif', serif;
+				background: #5cdb95; 
+			}
+
+			.pixi_container{
+				height: 150px;
+				max-width: 800px;
+
+				margin: 5px auto 0;
+			}
+
+			/* The switch - the box around the slider */
+			.switch {
+				position: relative;
+				display: inline-block;
+				width: 60px;
+				height: 34px;
+			}
+
+			/* Hide default HTML checkbox */
+			.switch input {
+				opacity: 0;
+				width: 0;
+				height: 0;
+			}
+
+			/* The slider */
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 26px;
+  width: 26px;
+  left: 4px;
+  bottom: 4px;
+  background-color: #edf5e1;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+input:checked + .slider {
+  background-color: #05386b;
+}
+
+input:focus + .slider {
+  box-shadow: 0 0 1px #05386b;
+}
+
+input:checked + .slider:before {
+  -webkit-transform: translateX(26px);
+  -ms-transform: translateX(26px);
+  transform: translateX(26px);
+}
+
+/* Rounded sliders */
+.slider.round {
+  border-radius: 34px;
+}
+
+.slider.round:before {
+  border-radius: 50%;
+}
+
+
+			.piano{
+				display: block;
+			}
+
+			.octave{
+				display: block;
+				height: 50px;
+				/*max-width: 880px;*/
+				max-width: 110px;
+				position: relative;
+				margin: 5px auto 0;
+			}
+
+			.btn {
+				/*position: absolute;*/
+				float: left;
+				/*border: 4px solid black;*/
+				border-width: 4px;
+				border-style:solid;
+				border-color: #05386b;
+				border-radius: .5rem;
+				transition: all .07s ease;
+				display: block;
+				box-sizing: border-box;
+				z-index: 2;
+				width: 45%;
+				height: 100%;
+				font-size: 30px;
+				background: #5cdb95;
+				color: #05386b;
+				/*margin: 1px 1px;*/
+				text-align: center;
+				line-height: 100%;
+			}
+
+			.oct_hints {
+				display: block;
+				width: 100%;
+				/*height:100%;*/
+				text-align: center;
+				margin: 5px auto;
+				vertical-align: middle;
+				/*line-height: normal;*/
+				/*line-height: 100%;*/
+				/*top: 5px;*/
+				/*bottom: 0;*/
+				/*display:table;*/
+				/*padding-bott: 0;*/
+				/*position: absolute;*/
+				/*line-height: normal;*/
+				/*bottom: 7px;*/
+				/*transition: opacity .3s ease-out;*/
+				/*font-size: 20px;*/
+			}
+
+			.btn[data-key="188"] {
+				left: 0%;
+			}
+
+			.btn[data-key="190"] {
+				right: 0%;
+			}
+
+			.nowplaying {
+				font-size: 120px;
+				line-height: 1;
+				color: #eee;
+				text-shadow: 0 0 5rem #028ae9;
+				transition: all .07s ease;
+				min-height: 120px;
+			}
+
+
+			
+
+			.keys {
+				display: block;
+				width: 100%;
+				/*height: 350px;*/
+				height: 250px;
+				/*max-width: 880px;*/
+				max-width: 600px;
+				position: relative;
+				margin: 5px auto 0;
+				/*cursor: none;*/
+				position: relative;
+			}
+
+			.key {
+				position: relative;
+				/*border: 4px solid black;*/
+				border-width: 4px;
+				border-style:solid;
+				border-color: #05386b;
+				border-radius: .5rem;
+				transition: all .07s ease;
+				display: block;
+				box-sizing: border-box;
+				z-index: 2;
+			}
+
+			.key:not(.sharp) {
+				margin-right: 0.2%;
+				float: left;
+				width: 9.8%;
+				height: 100%;
+				/*background: rgba(255, 255, 255, .8);  */
+				background: #5cdb95;
+				color: #05386b;
+
+			}
+
+			.key.sharp {
+				position: absolute;
+				width: 6%;
+				height: 60%;
+				/*background: #000;*/
+				background: #05386b;
+				/*color: #eee;*/
+				color: #5cdb95;
+				top: 0;
+				z-index: 3;
+			}
+
+			.key[data-key="87"] {
+				left: 7%;
+			}
+
+			.key[data-key="69"] {
+				left: 17%;
+			}
+
+			.key[data-key="84"]  {
+				left: 37%;
+			}
+
+			.key[data-key="89"] {
+				left: 47%;
+			}
+
+			.key[data-key="85"] {
+				left: 57%;
+			}
+
+			.key[data-key="79"] {
+				left: 77%;
+			}
+
+			.key[data-key="80"] {
+				left: 87%;
+			}
+
+			.playing {
+				transform: scale(.95);
+				/*border-color: #028ae9;
+				box-shadow: 0 0 1rem #028ae9;*/
+				border-color: #8ee4af;
+				box-shadow: 0 0 1rem #8ee4af;
+			}
+
+			.hints {
+				display: block;
+				width: 100%;
+				opacity: 0;
+				position: absolute;
+				bottom: 7px;
+				transition: opacity .3s ease-out;
+				font-size: 20px;
+			}
+
+			.keys:hover .hints {
+				opacity: 1;
+			}
+
+
+
+
+			.im2_main{
+				display: block;
+			}
+
+
+
+
+			.bar_div{
+				/*transition: width .5s, height .5s;*/
+				transition: width .5s, height .5s;
+				position: relative;
+				left: 50%;
+				top: 50%;
+				transform: translate(-50%, -50%);
+			}
+			.grid-container {
+				position: relative;
+				display: grid;
+				grid-template-columns: auto auto auto auto;
+				background-color: rgb(179, 212, 240);
+				padding: 5px;
+				width: 1030px;
+			}
+			.grid-item {
+				background-color: rgba(255, 255, 255, 0.8);
+				border: 1px solid rgba(0, 0, 0, 0.8);
+				padding: 2px;
+				font-size: 20px;
+				text-align: center;
+				width: 250px;
+				position: relative;
+			}
+
+
+			
+		</style>
+
+
+		<!-- <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs/dist/tf.min.js"> </script> -->
+		<script src="js/tfjs/tf.min.js"> </script>
+		<script src="js/pixi.min.js"></script>
+		<script src="js/MIDI.min.js"></script>
+		<script src="js/base64binary.js"></script>
+		<script src="js/jquery-3.2.1.min.js"></script>
+
+		<script src="scripts/midiService.js"></script>
+		<script src="scripts/midiCanvas.js"></script>
+		<script src="scripts/midiKeyboard.js"></script>
+		
+
+
+		<script src="scripts/custom_div.js"></script>
+		<script src="scripts/chart.js"></script>
+		<script src="scripts/main.js"></script>
+		<script src="scripts/run_system.js"></script>
+
+		<script src="scripts/tensorflowSystem.js"></script>
+
+		<!-- metronome setup -->
+		<script src="scripts/metronome_js/audioManager.js"></script>
+		<script src="scripts/metronome_js/audioSources.js"></script>
+		<script src="scripts/metronome_js/metronome.js"></script>
+		<script src="scripts/metronome_js/metronome_main.js"></script>
+		
+	</head>
+
+	<body>
+	
+		<!-- <div id="pixi_container" style="width: 100vmin"></div> -->
+		<div class="pixi_container" id="pixi_container" style="width: 800px;"></div>
+
+		<!-- <div class="grid-container" id="control_system" style="height: 100px;"></div> -->
+
+		<!-- <section id="main"> -->
+		<!-- <div class="nowplaying"></div> -->
+
+		<div class="piano">
+
+			<span class="">Mute MIDI Sound</span>
+			<br>
+			<label class="switch">
+					<input id="mute_btn" type="checkbox">
+					<span class="slider round"></span>
+			</label>
+
+			<div class="octave">
+					<div data-key="188" class="btn" data-note="-">
+						<span class="oct_hints"><</span> 
+					</div>
+					<div data-key="190" class="btn" data-note="+">
+						<span class="oct_hints">></span>
+					</div>
+			</div>
+			<div class="keys">
+				<div data-key="65" class="key" data-note="C" data-midi="0">
+					<span class="hints">A</span>
+					<!-- <span id="lowC" class="">3</span> -->
+				</div>
+				<div data-key="87" class="key sharp" data-note="C#" data-midi="1">
+					<span class="hints">W</span>
+				</div>
+				<div data-key="83" class="key" data-note="D" data-midi="2">
+					<span class="hints">S</span>
+				</div>
+				<div data-key="69" class="key sharp" data-note="D#" data-midi="3">
+					<span class="hints">E</span>
+				</div>
+				<div data-key="68" class="key" data-note="E" data-midi="4">
+					<span class="hints">D</span>
+				</div>
+				<div data-key="70" class="key" data-note="F" data-midi="5">
+					<span class="hints">F</span>
+				</div>
+				<div data-key="84" class="key sharp" data-note="F#" data-midi="6">
+					<span class="hints">T</span>
+				</div>
+				<div data-key="71" class="key" data-note="G" data-midi="7">
+					<span class="hints">G</span>
+				</div>
+				<div data-key="89" class="key sharp" data-note="G#" data-midi="8">
+					<span class="hints">Y</span>
+				</div>
+				<div data-key="72" class="key" data-note="A" data-midi="9">
+					<span class="hints">H</span>
+				</div>
+				<div data-key="85" class="key sharp" data-note="A#" data-midi="10">
+					<span class="hints">U</span>
+				</div>
+				<div data-key="74" class="key" data-note="B" data-midi="11">
+					<span class="hints">J</span>
+				</div>
+				<div data-key="75" class="key" data-note="C" data-midi="12">
+					<span class="hints">K</span>
+				</div>
+				<div data-key="79" class="key sharp" data-note="C#" data-midi="13">
+					<span class="hints">O</span>
+				</div>
+				<div data-key="76" class="key" data-note="D" data-midi="14">
+					<span class="hints">L</span>
+				</div>
+				<div data-key="80" class="key sharp" data-note="D#" data-midi="15">
+					<span class="hints">P</span>
+				</div>
+				<div data-key="186" class="key" data-note="E" data-midi="16">
+					<span class="hints">;</span>
+				</div>
+			</div>
+		</div>
+
+		<div class=".im2_main">
+			<span class="" style="padding: auto 0; text-align: center;">Mute Metronome</span>
+			<label class="switch">
+					<input id="mute_metro_btn" type="checkbox">
+					<span class="slider round"></span>
+			</label>
+		</div>
+
+
+
+		<script>
+			// FOR TESTING LOCALLY
+			// Python server
+
+			// If you have Python installed, it should be enough to run this from a command line (from your working directory):
+			// //Python 2.x
+			// python -m SimpleHTTPServer
+
+			// //Python 3.x
+			// python -m http.server
+
+			// This will serve files from the current directory at localhost under port 8000, i.e in the address bar type:
+			// http://localhost:8000/
+
+
+			// tfjs model loading
+			// var path_bot = "/tf_models/tfjs_models/exp5_model_bot21_16len_ep04-acc0.2793/model.json";
+			// var path_hum = "/tf_models/tfjs_models/exp5_model_human20_16len_ep05-acc0.3639/model.json";	
+		
+			// 	// https://deeplizard.com/learn/video/nnxJyxtIuFM
+			// 	// https://medium.com/@rossbulat/tensorflow-js-working-withtensors-and-training-a-model-f153d0d53ad0
+			// 	// https://codelabs.developers.google.com/codelabs/tfjs-training-regression/index.html#6
+
+			// var path_bot = "/tf_models/tfjs_models/exp5_model_bot21_16len_ep04-acc0.2793/model.json";
+			// var path_hum = "/tf_models/tfjs_models/exp5_model_human20_16len_ep05-acc0.3639/model.json";
+
+
+			var dict = [];
+			
+			// Before Revision Bot and human  model
+			// var path_bot = "/tf_models/tfjs_models/bot/model.json";
+			// var path_hum = "/tf_models/tfjs_models/human/model.json";
+
+			// After Revision Bot and human model (human model is the same, bot model + 348 ephocs)
+			var path_bot = "/tf_models/tfjs_models/revision/bot/model.json";
+			var path_hum = "/tf_models/tfjs_models/revision/human/model.json";
+
+			var tSystem;
+
+			//  Dict before revision
+			// $.getJSON("/tf_models/dicts/parts_harmony_int2chord_dict.json", (json) => {
+			//     dict = json;
+
+
+			//     var count=0;
+			//     for(var prop in dict) {
+			//     	if (dict.hasOwnProperty(prop)) {
+			//     		++count;
+			// 		}
+			// 	}
+
+
+			//     console.log("json:",count); // this will show the info it in firebug console
+			//     tSystem = new tensorflowSystem(path_hum, path_bot, dict);
+			// });
+			
+
+			// Dict after revision
+			$.getJSON("/tf_models/dicts/revision/parts_harmony_int2chord_dict.json", (json) => {
+			    dict = json;
+
+
+			    var count=0;
+			    for(var prop in dict) {
+			    	if (dict.hasOwnProperty(prop)) {
+			    		++count;
+					}
+				}
+
+
+			    console.log("json:",count); // this will show the info it in firebug console
+			    tSystem = new tensorflowSystem(path_hum, path_bot, dict);
+			});
+
+
+
+			
+
+			
+			
+			// MIDI.js code
+
+			// load grand piano soundfont
+			MIDI.loadPlugin({
+				soundfontUrl: "./soundfont/",
+				instrument: "acoustic_grand_piano",
+				onprogress: function(state, progress) {
+					console.log(state, progress);
+				},
+				onsuccess: function() {
+					var delay = 0; // play one note every quarter second
+					var note = 50; // the MIDI note
+					var velocity = 1; // how hard the note hits
+					// play the note
+					// MIDI.setVolume(0, 1);
+					// MIDI.noteOn(0, note, velocity, delay);
+					// MIDI.noteOff(0, note, delay + 0.75);
+				}
+			});
+
+
+			
+			var muteBtn = document.getElementById("mute_btn");
+
+			var muteMetroBtn = document.getElementById("mute_metro_btn");
+
+			muteMetroBtn.addEventListener( 'change', function() {
+			    if(this.checked) {
+			    	metronome.setSoundOnOff(true);
+			        
+			    } else {
+			    	metronome.setSoundOnOff(false);
+			    }
+			});
+
+
+			
+
+			// Init midi service
+			var midi = new midiService(100,muteBtn);
+			
+			var mcanvas = new midiCanvas(midi,150,800);
+			
+			var keyboard = new midiKeyboard(midi);
+			
+			// mcanvas.init();
+
+			$(document).ready( () =>{
+				// arm the first input of the system to complete predictoins for the first beat
+				// construct_bars_content();
+				// chart_object = new ChartClass( allBars );
+
+				mcanvas.init();
+				// Run visualizer
+				mcanvas.run();
+			});
+		</script>
+
+
+		<!--  Maximos Code -->
+		<script>
+			var num_of_bar_quadruples = 1;
+			var allBars = [];
+			var timeSig = '4/4'; // to be changed by dropdown menu
+			var chart_object = [];
+			// current to be highlighted - from chart_object
+			var beat_highlight = 0;
+			var eighth_value = 0;
+			var num_bars = 0;
+			var beats_per_bar = 0;
+			// play status of the program
+			var play_status = false;
+			var first_time_next = true;
+			// information to the system
+			// number of columns as seed to the system
+			var time_step = 16;
+			var current_beat_info = false;
+			var tmp_beat = [];
+			var beat_info_array = new Array(time_step).fill(0);
+			var tmp_beat_info = false;
+			var current_chord_info = [];
+			var chord_info_matrix = new Array(time_step).fill( new Array( 18 ).fill( 0 ) );
+			// initialize human and bot input
+			// TODO: Theatina, check if we need to fill with 0 or 128 (we need pauses)
+			// var human_midi_array = new Array(time_step).fill(0);
+			var human_midi_array = new Array(time_step).fill(128);
+
+			var human_prediction_array = new Array(time_step).fill(128);
+			var bot_prediction_array = new Array(time_step).fill(0);
+			// from main
+			construct_controls_UI();
+			construct_bars_UI();
+			// var allClickFunctions = {};
+			// __MAX__ removed the entire ready callback
+			// $(document).ready( () =>{
+				// construct_bars_content();
+				// // Run visualizer
+				// mcanvas.run();
+			// });
+			// __MAX__ removed creation of chart_object
+
+
+			$(document).ready( () =>{
+				construct_bars_content();
+				chart_object = new ChartClass( allBars );
+				tmp_beat = chart_object.chord_events[ 0 ];
+				
+
+
+				// // Run visualizer
+				// mcanvas.run();
+			});
+
+			window.onload = (event) => {
+				// __MAX__
+				// construct_bars_content();
+				// chart_object = new ChartClass( allBars );
+				// __MAX__
+				// tmp_beat = chart_object.chord_events[ 0 ];
+			  	// make_inputs_and_run_init();
+			};
+
+		</script>
+
+
+		<script>
+			function main_zoom_out_all_except(id){
+				for (var i=0; i<allBars.length; i++){
+					if ( id != allBars[i].id ){
+						allBars[i].set_zoom_status(false);
+					}
+				}
+				// update chart object
+				chart_object = new ChartClass( allBars );
+
+			}
+		</script>
+
+
+		
+	</body>
+
+
+</html>
